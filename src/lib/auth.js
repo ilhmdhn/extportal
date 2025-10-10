@@ -4,7 +4,7 @@ const response = require('../lib/response');
 
 module.exports = (req, res, next) => {
   const authHeader = req.headers['authorization'];
-    
+      
   if (!authHeader) {
     return response.unauthorized(res, 'Token tidak ditemukan');
   }
@@ -12,11 +12,20 @@ module.exports = (req, res, next) => {
   const publicKey = fs.readFileSync('public.key', 'utf8');
 
   try {
-    const token = authHeader;
+    let token;
+    let isLegacyToken = false;
+    
+    if (authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7); // Hapus "Bearer "
+      isLegacyToken = false;
+    } else {
+      token = authHeader;
+      isLegacyToken = true;
+    }
+    
     let decoded = jwt.verify(token, publicKey, { algorithms: ['RS256'], ignoreExpiration: true });
     
-    // SUPPORT LEGACY: Jika hasil adalah string (double encoded), parse lagi
-    if (typeof decoded === 'string') {
+    if (isLegacyToken && typeof decoded === 'string') {
       decoded = JSON.parse(decoded);
     }
     

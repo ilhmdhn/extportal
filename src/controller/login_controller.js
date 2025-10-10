@@ -42,7 +42,9 @@ const login = async(req, res) => {
             exp: Math.floor(Date.now() / 1000) + 4 * 60 * 60 // 4 jam
         };
         const token = jwt.sign(payload, privateKey, { algorithm: 'RS256' });
-        response.success(res, 'Login successful', { data: token });
+        
+        // Tambahkan Bearer prefix
+        response.success(res, 'Login successful', `Bearer ${token}` );
     } catch (error) {
         response.error(res, 'Login failed', 401);
     }
