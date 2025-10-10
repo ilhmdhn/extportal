@@ -7,7 +7,7 @@ const { Op } = require('sequelize');
 const AttendanceGPS  = require('../model/attendance_gps');
 
 
-const attendanceDir = path.join(__dirname,'..','..','uploads','Attendance');
+const attendanceDir = path.join(__dirname,'..','..','uploads','attendance');
 
 const postGpsAttendance = async (req, res) => {
     try {

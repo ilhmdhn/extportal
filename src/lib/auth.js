@@ -2,19 +2,9 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const response = require('../lib/response');
 
-module.exports = (req, res, next) =>{
+module.exports = (req, res, next) => {
   const authHeader = req.headers['authorization'];
-  
-  const publicPaths = [
-    '/login',
-    '/tools',
-    '/storage'
-  ];
-
-  if (publicPaths.some(path => req.path.startsWith(path))) {
-    return next(); // biarkan lewat tanpa token
-  }
-  
+    
   if (!authHeader) {
     return response.unauthorized(res, 'Token tidak ditemukan');
   }
@@ -23,7 +13,13 @@ module.exports = (req, res, next) =>{
 
   try {
     const token = authHeader;
-    const decoded = jwt.verify(token, publicKey, { algorithms: ['RS256'], ignoreExpiration: true });
+    let decoded = jwt.verify(token, publicKey, { algorithms: ['RS256'], ignoreExpiration: true });
+    
+    // SUPPORT LEGACY: Jika hasil adalah string (double encoded), parse lagi
+    if (typeof decoded === 'string') {
+      decoded = JSON.parse(decoded);
+    }
+    
     req.user = decoded;
     next();
   } catch (err) {

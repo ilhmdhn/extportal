@@ -25,9 +25,8 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(loginRouter);
 app.use('/tools',toolsRouter);
 
-app.use(auth)
-app.use('/user',userRouter);
-app.use('/attendance',attendanceRouter);
+app.use('/user',auth, userRouter);
+app.use('/attendance',auth, attendanceRouter);
 
 app.listen(PORT, async () => {
   try {
