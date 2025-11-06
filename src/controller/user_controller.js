@@ -12,8 +12,8 @@ const accessControl = async (req, res) => {
         const { nip, outlet } = req.user;
         const navAccess = await navState();
         const EmployeeData = await Employee.findOne({
-            where: { NIP: nip, OutletAkses: outlet },
-            attributes: ['Level', 'OutletAkses']
+            where: { NIP: nip},
+            attributes: ['Level']
         });
 
         if (!EmployeeData) {

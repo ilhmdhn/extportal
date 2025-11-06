@@ -10,14 +10,21 @@ const AttendanceGPS  = require('../model/attendance_gps');
 const attendanceDir = path.join(__dirname,'..','..','uploads','attendance');
 
 const postGpsAttendance = async (req, res) => {
+    const { outlet, distance, type, lat, long, accuracy, is_face_recognition } = req.body;
+    const file = req.file;
+    const photoPath = file?.path;
+    const user = req.user;
     try {
-        const { outlet, distance, type, lat, long, accuracy, is_face_recognition } = req.body;
-        const file = req.file;
-        const photoPath = file?.path;
-        const user = req.user;
-
         if (!outlet || !distance || !type || !photoPath) {
-            return response.error(res, 'Missing required fields', 400);
+            response.error(res, 'Missing required fields', 400);
+            if (photoPath) {
+                try {
+                    await fs.unlink(photoPath);
+                } catch (err) {
+                    console.error('Gagal menghapus file duplikat:', err);
+                }
+            }
+            return;
         }
 
         // Ambil lokasi outlet
@@ -46,8 +53,15 @@ const postGpsAttendance = async (req, res) => {
         );
         */
         if (distance > 50) {
-            console.log('Distance too far:', distanceFromBoundary, distance);
-            return response.error(res, 'Anda terlalu jauh dari outlet, absen GPS gagal dilakukan...', 400);
+            response.error(res, 'Anda terlalu jauh dari outlet, absen GPS gagal dilakukan...', 400);
+            if (photoPath) {
+                try {
+                    await fs.unlink(photoPath);
+                } catch (err) {
+                    console.error('Gagal menghapus file duplikat:', err);
+                }
+            }
+            return;
         }
 
         const time = new Date();
@@ -109,12 +123,28 @@ const postGpsAttendance = async (req, res) => {
 
             } catch (error) {
                 console.error('File operation error:', error);
+                if (photoPath) {
+                    try {
+                        await fs.unlink(photoPath);
+                    } catch (err) {
+                        console.error('Gagal menghapus file duplikat:', err);
+                    }
+                }
+                return;
             }
         })();
 
     } catch (error) {
         console.error('Error in postGpsAttendance:', error);
-        return response.error(res, error.message, 500);
+        response.error(res, error.message, 500);
+        if (photoPath) {
+            try {
+                await fs.unlink(photoPath);
+            } catch (err) {
+                console.error('Gagal menghapus file duplikat:', err);
+            }
+        }
+        return;
     }
 };
 

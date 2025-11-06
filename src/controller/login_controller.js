@@ -23,19 +23,21 @@ const login = async(req, res) => {
         if (!user) {
             return response.unauthorized(res, 'Invalid username or password');
         }
+        const name = [user.FirstName, user.MiddleName, user.LastName].filter(Boolean).join(' ').trim() || user.NIP;
         const payload = {
             nip: user.NIP,
-            name: [user.FirstName, user.MiddleName, user.LastName].filter(Boolean).join(' '),
+            // name: [user.FirstName, user.MiddleName, user.LastName].filter(Boolean).join(' '),
+            name: name,
             email: user.EMail,
             role: user.Level,
-            jabatan: user.Jabatan,
-            pangkat: user.Pangkat,
-            phone: user.Phone,
-            sex: user.Sex,
-            departemen: user.Departemen,
-            emp_date: user.employmentDate,
-            picture: `${process.env.BASE_URL || ''}${user.Picture}`,
-            signature: `${process.env.BASE_URL || ''}${user.Signature}`,
+            jabatan: user.Jabatan??'none',
+            pangkat: user.Pangkat??'non pangkat',
+            phone: user.Phone??'none',
+            sex: user.Sex??'none',
+            departemen: user.Departemen??'none',
+            emp_date: user.employmentDate??'none',
+            picture: `https://eportal.happypuppy.id/${user.Picture}`,
+            signature: `https://eportal.happypuppy.id/${user.Signature}`,
             outlet: user.Outlet,
             akses_outlet: user.OutletAkses,
             iat: Math.floor(Date.now() / 1000),
